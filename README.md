@@ -14,6 +14,8 @@ The method described below, although implemented on Bindplane, can be used for p
 
 This is version 1 of my password obfuscation solution. You will be prompted to provide the vault key every time you run `systemctl start bindplane`. Some clients may prefer this solution. However, the drawback of manually supplying the vault key at Bindplane startup is that, for automated Linux patch installations, you will need to be present at odd hours (midnight) to provide the vault key.
 
+The solution described here was implemented on Red Hat Linux release 9.
+
 > **Note:** Version 2 of this solution uses systemd's `LoadCredentialEncrypted` to supply the vault key at startup.
 
 ---
@@ -32,7 +34,7 @@ cp config.yaml config.yaml_`date "+%Y%m%d-%H%M%S"`
 
 Or preferably on a very secure system or in GitHub.
 
-> **Security Tip:** For added security, place the passwords and secrets in `config.yaml` file with placeholders when backing up the config, and store the actual passwords and secrets in CyberArk or a password/secret manager of your choice.
+> **Security Tip:** For added security, replace the passwords and secrets in `config.yaml` file with placeholders when backing up the config, and store the actual passwords and secrets in CyberArk or a password/secret manager of your choice.
 
 #### 2. Install Ansible
 
@@ -189,7 +191,7 @@ localhost ansible_connection=local
 
 ### Overview
 
-Copy the workhorse script `/usr/local/bin/bindplane-config-manager.sh` to `/usr/local/bin` on the host where you are performing password obfuscation.
+Copy the workhorse script `bindplane-config-manager.sh` to `/usr/local/bin` on the host where you are performing password obfuscation.
 
 The script performs the following operations:
 - Requests the vault key
@@ -212,7 +214,7 @@ bindplane-config-manager.sh prepare
 **Expected output:**
 
 ```
-[INFO] Preparing BindPlane configuration...
+[INFO] Preparing Bindplane configuration...
 [INFO] Prompting for vault password...
 🔒 Enter Ansible Vault password for BindPlane: ****************
 [INFO] Decrypting passwords and generating config...
@@ -245,7 +247,7 @@ bindplane-config-manager.sh cleanup
 
 Part 3 involves using RHEL9's systemd startup process to run the `bindplane-config-manager.sh` script that you have set up above.
 
-When you start BindPlane by running:
+Before password obfuscation, when you start Bindplane by running:
 
 ```bash
 systemctl status bindplane
@@ -255,7 +257,7 @@ You see the following:
 
 ```
 o bindplane.service - Bindplane is an observability pipeline that gives you the ability to collect, refine, and ship metrics, logs, and traces to any destination.
-    Loaded: loaded (/usr/lib/systemd/system/bindplane.service; enabled; preset: disabled)
+    Loaded: loaded (**/usr/lib/systemd/system/bindplane.service**; enabled; preset: disabled)
     Active: inactive (dead) since Tue 2025-11-11 14:09:39 EST; 10s ago
   Duration: 4d 2min 5.187s
       Docs: https://bindplane.com/docs/getting-started/quickstart-guide
@@ -264,13 +266,13 @@ o bindplane.service - Bindplane is an observability pipeline that gives you the 
        CPU: 2h 1min 17.745s
 ```
 
-Observe that at BindPlane startup, systemd is loading `/usr/lib/systemd/system/bindplane.service`.
+Observe that at Bindplane startup, systemd is loading `/usr/lib/systemd/system/bindplane.service`.
 
 ---
 
 ### Override Default Service File
 
-We are going to override it and make systemd call our customized `bindplane.service` file that contains our `bindplane-config-manager.sh` script.
+We are going to override the Bindplane's loading of /usr/lib/systemd/system/bindplane.service and make systemd call our customized `bindplane.service` file that contains our `bindplane-config-manager.sh` script.
 
 View the content of the default service file:
 
@@ -278,7 +280,7 @@ View the content of the default service file:
 more /usr/lib/systemd/system/bindplane.service
 ```
 
-Copy our customized `bindplane.service` to `/etc/systemd/system` on the BindPlane host where you are performing password obfuscation.
+Copy our customized `bindplane.service` to `/etc/systemd/system` on the Bindplane host where you are performing password obfuscation.
 
 Check the content of the file to see how it is different from `/usr/lib/systemd/system/bindplane.service`.
 
@@ -316,7 +318,7 @@ systemctl status bindplane
 
 You can see that systemd is now loading `/etc/systemd/system/bindplane.service` at startup.
 
-You would also see that the BindPlane's `config.yaml` is no longer visible in `/etc/bindplane`, creating an additional level of security.
+You would also see that the Bindplane's `config.yaml` is no longer visible in `/etc/bindplane`, creating an additional level of security.
 
 ---
 
@@ -346,7 +348,7 @@ bindplane-config/
 
 ### Update Passwords
 
-If you change the passwords in BindPlane's `config.yaml` file, you will need to update the `bindplane_secrets.yml` file where the encrypted passwords are stored:
+If you change the passwords in Bindplane's `config.yaml` file, you will need to update the `bindplane_secrets.yml` file where the encrypted passwords are stored:
 
 ```bash
 cd /etc/bindplane/bindplane-config/vars
@@ -390,7 +392,7 @@ To update the `config.yaml` with LDAP:
 
 ## Rollback Procedure
 
-To roll back password obfuscation (i.e., for some reason you want to revert back to having plaintext credentials in BindPlane's `config.yaml` file):
+To roll back password obfuscation (i.e., for some reason you want to revert back to having plaintext credentials in Bindplane's `config.yaml` file):
 
 ### Step 1: Restore Original Config
 
@@ -461,7 +463,7 @@ ansible-playbook deploy_bindplane.yml --ask-vault-pass
 
 ## License
 
-[Specify your license here]
+MIT License
 
 ## Author
 
