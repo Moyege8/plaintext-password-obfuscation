@@ -6,13 +6,13 @@ A comprehensive solution for obfuscating plaintext passwords in configuration fi
 
 ### Genesis
 
-The team I had just joined had been trying to onboard BindPlane for several years but were faced with the dilemma of how to hide the plaintext passwords in Bindplane's `config.yaml` file. I came up with the method described below. BindPlane is a version of the open source OpenTelemetry.
+The team I had just joined had been trying to onboard Bindplane for a while but were faced with the dilemma of how to hide the plaintext passwords in Bindplane's `config.yaml` file. I came up with the method described below. BindPlane is a version of the open source OpenTelemetry.
 
-The method described below, although implemented on BindPlane, can be used for password obfuscation on any platform.
+The method described below, although implemented on Bindplane, can be used for password obfuscation on any platform.
 
 ### Version Notes
 
-This is version 1 of my password obfuscation solution. You will be prompted to provide the vault key every time you run `systemctl start bindplane`. Some clients may prefer this solution. However, the drawback of manually supplying the vault key at BindPlane startup is that for automated Linux patch installations, you will need to be present at odd hours (midnight) to provide the vault key.
+This is version 1 of my password obfuscation solution. You will be prompted to provide the vault key every time you run `systemctl start bindplane`. Some clients may prefer this solution. However, the drawback of manually supplying the vault key at Bindplane startup is that, for automated Linux patch installations, you will need to be present at odd hours (midnight) to provide the vault key.
 
 > **Note:** Version 2 of this solution uses systemd's `LoadCredentialEncrypted` to supply the vault key at startup.
 
