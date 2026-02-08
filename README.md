@@ -6,7 +6,7 @@ A comprehensive solution for obfuscating plaintext passwords in configuration fi
 
 ### Genesis
 
-The team I had just joined had been trying to onboard BindPlane for several years but were faced with the dilemma of how to hide the plaintext passwords in BindPlane's `config.yaml` file. I came up with the method described below. BindPlane is a version of the open source OpenTelemetry.
+The team I had just joined had been trying to onboard BindPlane for several years but were faced with the dilemma of how to hide the plaintext passwords in Bindplane's `config.yaml` file. I came up with the method described below. BindPlane is a version of the open source OpenTelemetry.
 
 The method described below, although implemented on BindPlane, can be used for password obfuscation on any platform.
 
