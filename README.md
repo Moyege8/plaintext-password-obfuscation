@@ -472,7 +472,7 @@ Date: November 12, 2025
 
 ## Contributing
 
-[Add contribution guidelines if applicable]
+https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/contribution%20guidelines
 
 ---
 
