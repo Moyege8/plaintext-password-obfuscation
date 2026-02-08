@@ -1,0 +1,651 @@
+# Contributing to Password Obfuscation
+
+Thank you for your interest in contributing to this project! This document provides guidelines and standards for contributing to the password obfuscation solution.
+
+## Table of Contents
+
+- [Code of Conduct](#code-of-conduct)
+- [How Can I Contribute?](#how-can-i-contribute)
+- [Getting Started](#getting-started)
+- [Development Guidelines](#development-guidelines)
+- [Security Guidelines](#security-guidelines)
+- [Submission Process](#submission-process)
+- [Testing Requirements](#testing-requirements)
+- [Documentation Standards](#documentation-standards)
+
+---
+
+## Code of Conduct
+
+### Our Pledge
+
+We are committed to providing a welcoming and inclusive environment for all contributors. Please:
+
+- Be respectful and constructive in all communications
+- Accept constructive criticism gracefully
+- Focus on what is best for the community and the project
+- Show empathy towards other community members
+
+### Unacceptable Behavior
+
+- Harassment, trolling, or insulting/derogatory comments
+- Publishing others' private information without permission
+- Any conduct that would be inappropriate in a professional setting
+
+---
+
+## How Can I Contribute?
+
+### Reporting Bugs
+
+Before creating bug reports, please check existing issues to avoid duplicates.
+
+When reporting bugs, include:
+
+- **Clear descriptive title**
+- **Detailed description** of the issue
+- **Steps to reproduce** the behavior
+- **Expected vs actual behavior**
+- **Environment details:**
+  - OS version (RHEL, CentOS, Ubuntu, etc.)
+  - Ansible version
+  - systemd version
+  - Application version (BindPlane, etc.)
+- **Relevant logs** (sanitize sensitive information)
+- **Screenshots** if applicable
+
+**Example Bug Report:**
+
+```markdown
+### Bug: Vault password prompt not appearing
+
+**Environment:**
+- RHEL 9.2
+- Ansible 2.14.3
+- systemd 252
+
+**Steps to Reproduce:**
+1. Run `systemctl start bindplane`
+2. Expected vault password prompt does not appear
+
+**Expected Behavior:**
+systemd-ask-password should prompt for vault password
+
+**Actual Behavior:**
+Service fails to start with error in journalctl
+
+**Logs:**
+[paste sanitized logs here]
+```
+
+### Suggesting Enhancements
+
+Enhancement suggestions are welcome! Please include:
+
+- **Clear use case** - Why is this enhancement needed?
+- **Proposed solution** - How would it work?
+- **Alternatives considered** - What other approaches did you think about?
+- **Impact assessment** - What would this change/break?
+
+### Pull Requests
+
+We actively welcome your pull requests for:
+
+- Bug fixes
+- New features
+- Documentation improvements
+- Performance enhancements
+- Additional platform support
+- Test coverage improvements
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+Before contributing, ensure you have:
+
+1. **Development Environment:**
+   - Linux system (RHEL 9+, CentOS 9+, Ubuntu 22.04+)
+   - Root/sudo access for testing
+   - Git installed
+
+2. **Required Software:**
+   ```bash
+   # Install development dependencies
+   sudo dnf install ansible-core git vim
+   
+   # Or on Ubuntu/Debian
+   sudo apt install ansible git vim
+   ```
+
+3. **Fork and Clone:**
+   ```bash
+   # Fork the repository on GitHub
+   # Clone your fork
+   git clone https://github.com/YOUR_USERNAME/password-obfuscation.git
+   cd password-obfuscation
+   
+   # Add upstream remote
+   git remote add upstream https://github.com/ORIGINAL_OWNER/password-obfuscation.git
+   ```
+
+### Setting Up Development Environment
+
+1. **Create test directory structure:**
+   ```bash
+   mkdir -p /tmp/bindplane-test/bindplane-config/{templates,vars}
+   ```
+
+2. **Create sample config files for testing:**
+   ```bash
+   # Use sanitized/dummy credentials for all testing
+   ```
+
+3. **Test on non-production systems only**
+
+---
+
+## Development Guidelines
+
+### Bash Script Standards
+
+Follow these guidelines when contributing bash scripts:
+
+1. **Shebang and Options:**
+   ```bash
+   #!/bin/bash
+   set -e  # Exit on error
+   set -u  # Exit on undefined variable
+   set -o pipefail  # Exit on pipe failure
+   ```
+
+2. **Variables:**
+   - Use UPPERCASE for constants: `VAULT_PASSWORD`
+   - Use lowercase for local variables: `temp_file`
+   - Always quote variables: `"$VARIABLE"`
+   - Use descriptive names: `vault_password` not `vp`
+
+3. **Functions:**
+   ```bash
+   # Good: Descriptive function with comments
+   cleanup_temp_files() {
+       # Remove temporary password files securely
+       if [ -f "$TEMP_VAULT_PASS" ]; then
+           shred -u "$TEMP_VAULT_PASS" 2>/dev/null || rm -f "$TEMP_VAULT_PASS"
+       fi
+   }
+   ```
+
+4. **Error Handling:**
+   ```bash
+   # Always check command success
+   if ! command_here; then
+       log_error "Command failed"
+       cleanup_and_exit 1
+   fi
+   ```
+
+5. **Logging:**
+   - Use consistent log levels: INFO, WARNING, ERROR
+   - Include timestamps where appropriate
+   - Sanitize sensitive data from logs
+
+### Ansible Standards
+
+1. **Playbook Structure:**
+   ```yaml
+   ---
+   - name: Descriptive playbook name
+     hosts: target_hosts
+     become: yes  # Only if needed
+     vars:
+       # Inline vars for simple values
+     vars_files:
+       # External vars for complex/sensitive data
+     
+     tasks:
+       - name: Clear, action-oriented task name
+         module_name:
+           parameter: value
+   ```
+
+2. **Variable Naming:**
+   - Use snake_case: `bindplane_admin_password`
+   - Prefix with application name: `bindplane_*`, `app_*`
+   - Be descriptive: `session_secret` not `secret`
+
+3. **Template Files (.j2):**
+   - Use clear variable names: `{{ bindplane_admin_password }}`
+   - Add comments for complex logic
+   - Validate template syntax before committing
+
+### systemd Service File Standards
+
+1. **Section Organization:**
+   ```ini
+   [Unit]
+   # Description and dependencies
+   
+   [Service]
+   # Service configuration
+   
+   [Install]
+   # Installation configuration
+   ```
+
+2. **Security Hardening:**
+   - Include security options where appropriate
+   - Document why specific options are commented out
+   - Use least privilege principle
+
+3. **Comments:**
+   - Explain non-obvious configurations
+   - Document version-specific requirements
+   - Include references to documentation
+
+---
+
+## Security Guidelines
+
+### Critical Security Rules
+
+⚠️ **NEVER commit the following to the repository:**
+
+- ❌ Actual passwords or secrets
+- ❌ Vault passwords
+- ❌ Encrypted vault files (`bindplane_secrets.yml`)
+- ❌ API keys or tokens
+- ❌ Private keys
+- ❌ Real production configuration files
+
+### What TO Include
+
+✅ **Safe to commit:**
+
+- ✅ Template files with placeholders
+- ✅ Example configurations with dummy data
+- ✅ Documentation
+- ✅ Scripts (without embedded secrets)
+- ✅ Test files with sanitized data
+
+### Security Testing
+
+1. **Before committing, verify:**
+   ```bash
+   # Check for potential secrets
+   git diff --cached | grep -iE '(password|secret|key|token).*=.*[^{]'
+   
+   # Use tools like git-secrets or gitleaks
+   git secrets --scan
+   ```
+
+2. **Use dummy credentials in examples:**
+   ```yaml
+   # Good
+   admin_password: "REPLACE_WITH_ACTUAL_PASSWORD"
+   
+   # Bad
+   admin_password: "MyRealP@ssw0rd123"
+   ```
+
+3. **Sanitize logs:**
+   - Remove all sensitive data before including in issues/PRs
+   - Replace with placeholders: `[REDACTED]`, `***`
+
+---
+
+## Submission Process
+
+### Branch Naming Convention
+
+Use descriptive branch names:
+
+```bash
+# Feature branches
+git checkout -b feature/add-ldap-support
+
+# Bug fix branches
+git checkout -b fix/vault-password-prompt
+
+# Documentation branches
+git checkout -b docs/update-installation-guide
+
+# Enhancement branches
+git checkout -b enhance/improve-error-handling
+```
+
+### Commit Messages
+
+Follow conventional commit format:
+
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+**Types:**
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation changes
+- `style`: Code style changes (formatting, etc.)
+- `refactor`: Code refactoring
+- `test`: Adding or updating tests
+- `chore`: Maintenance tasks
+
+**Examples:**
+
+```bash
+feat(ansible): add support for multiple vault files
+
+- Allow users to specify multiple encrypted vault files
+- Update playbook to merge multiple var files
+- Add documentation for multi-vault usage
+
+Closes #42
+
+---
+
+fix(systemd): correct ExecStartPost timing issue
+
+The cleanup script was running too early, before the service
+fully started. Added sleep delay to ensure proper timing.
+
+Fixes #38
+
+---
+
+docs(readme): add troubleshooting section
+
+Added common issues and solutions based on user feedback
+```
+
+### Pull Request Process
+
+1. **Update your fork:**
+   ```bash
+   git fetch upstream
+   git rebase upstream/main
+   ```
+
+2. **Create pull request with:**
+   - Clear title describing the change
+   - Reference to related issue(s)
+   - Description of changes made
+   - Testing performed
+   - Screenshots/logs if applicable
+
+3. **PR Template:**
+   ```markdown
+   ## Description
+   Brief description of changes
+   
+   ## Related Issue
+   Closes #XX
+   
+   ## Type of Change
+   - [ ] Bug fix
+   - [ ] New feature
+   - [ ] Documentation update
+   - [ ] Performance improvement
+   
+   ## Testing Performed
+   - [ ] Tested on RHEL 9
+   - [ ] Tested on Ubuntu 22.04
+   - [ ] Ansible playbook runs successfully
+   - [ ] systemd service starts correctly
+   - [ ] Vault password encryption/decryption works
+   
+   ## Checklist
+   - [ ] Code follows project style guidelines
+   - [ ] Self-review completed
+   - [ ] Comments added for complex code
+   - [ ] Documentation updated
+   - [ ] No secrets committed
+   - [ ] Tests pass
+   ```
+
+4. **Code Review Process:**
+   - Respond to feedback promptly
+   - Make requested changes in new commits
+   - Once approved, squash commits if requested
+
+---
+
+## Testing Requirements
+
+### Pre-Submission Testing
+
+All contributions must pass these tests:
+
+1. **Syntax Validation:**
+   ```bash
+   # Bash scripts
+   shellcheck bindplane-config-manager.sh
+   
+   # Ansible playbooks
+   ansible-playbook deploy_bindplane.yml --syntax-check
+   
+   # YAML files
+   yamllint *.yml
+   ```
+
+2. **Functionality Testing:**
+   ```bash
+   # Test prepare function
+   ./bindplane-config-manager.sh prepare
+   
+   # Verify config generated
+   [ -f /etc/bindplane/config.yaml ] && echo "PASS" || echo "FAIL"
+   
+   # Test cleanup function
+   ./bindplane-config-manager.sh cleanup
+   
+   # Verify config removed
+   [ ! -f /etc/bindplane/config.yaml ] && echo "PASS" || echo "FAIL"
+   ```
+
+3. **systemd Integration Testing:**
+   ```bash
+   # Reload systemd
+   systemctl daemon-reload
+   
+   # Start service
+   systemctl start bindplane
+   
+   # Check status
+   systemctl status bindplane
+   
+   # Verify logs
+   journalctl -u bindplane -n 50
+   ```
+
+4. **Security Testing:**
+   ```bash
+   # Verify file permissions
+   ls -la /etc/bindplane/bindplane-config/vars/
+   
+   # Ensure vault file is encrypted
+   file bindplane_secrets.yml
+   
+   # Check for plaintext passwords
+   grep -r "password.*:" /etc/bindplane/config.yaml
+   ```
+
+### Platform Testing
+
+Test on multiple platforms when possible:
+
+- ✅ RHEL 9.x
+- ✅ CentOS Stream 9
+- ✅ Rocky Linux 9
+- ✅ Ubuntu 22.04+
+- ✅ Debian 12+
+
+### Test Documentation
+
+Include test results in PR:
+
+```markdown
+## Test Results
+
+### Environment
+- OS: RHEL 9.2
+- Ansible: 2.14.3
+- systemd: 252
+
+### Tests Performed
+1. ✅ Vault creation and encryption
+2. ✅ Password obfuscation in template
+3. ✅ Ansible playbook execution
+4. ✅ systemd service start with password prompt
+5. ✅ Config deployment to /etc/bindplane
+6. ✅ Cleanup function removes config
+7. ✅ Service restart with new vault password
+
+### Test Logs
+[Attach sanitized logs]
+```
+
+---
+
+## Documentation Standards
+
+### Code Comments
+
+1. **Bash Scripts:**
+   ```bash
+   # Function to securely clean up temporary password files
+   # Uses shred when available for secure deletion
+   # Falls back to rm if shred is not installed
+   cleanup_temp_files() {
+       if [ -f "$TEMP_VAULT_PASS" ]; then
+           shred -u "$TEMP_VAULT_PASS" 2>/dev/null || rm -f "$TEMP_VAULT_PASS"
+       fi
+   }
+   ```
+
+2. **Ansible Playbooks:**
+   ```yaml
+   # Generate config.yaml from Jinja2 template
+   # Decrypts passwords from vault during template processing
+   - name: Generate config.yaml from template with decrypted passwords
+     template:
+       src: templates/bindplane-config.yml.j2
+       dest: ./output/config.yaml
+       mode: '0600'  # Restrict to owner only
+   ```
+
+3. **Configuration Files:**
+   ```ini
+   # ExecStartPre runs before service starts
+   # Prompts for vault password and generates config.yaml
+   ExecStartPre=/usr/local/bin/bindplane-config-manager.sh prepare
+   ```
+
+### README Updates
+
+When adding features, update relevant sections:
+
+- Installation instructions
+- Usage examples
+- Troubleshooting section
+- FAQ if applicable
+
+### Inline Documentation
+
+Use clear, concise comments:
+
+```bash
+# Good: Explains why, not what
+# Sleep to allow service to fully start before cleanup
+sleep 15
+
+# Bad: States the obvious
+# Sleep for 15 seconds
+sleep 15
+```
+
+---
+
+## Style Guide
+
+### File Naming
+
+- Use lowercase with hyphens: `bindplane-config-manager.sh`
+- Be descriptive: `deploy_bindplane.yml` not `deploy.yml`
+- Use appropriate extensions: `.sh`, `.yml`, `.j2`, `.md`
+
+### Indentation
+
+- **Bash:** 4 spaces
+- **YAML:** 2 spaces
+- **Markdown:** Varies by element (2-4 spaces for lists)
+
+### Line Length
+
+- Keep lines under 120 characters when possible
+- Break long commands across multiple lines:
+  ```bash
+  ansible-playbook deploy_bindplane.yml \
+      --vault-password-file "$TEMP_VAULT_PASS" \
+      --inventory inventory.ini \
+      --verbose
+  ```
+
+---
+
+## Getting Help
+
+### Where to Ask Questions
+
+- **GitHub Discussions:** For general questions and discussions
+- **GitHub Issues:** For bug reports and feature requests
+- **Pull Request Comments:** For specific code review questions
+
+### Response Time
+
+- We aim to respond to issues within 48 hours
+- Pull requests are typically reviewed within 1 week
+- Security issues receive priority attention
+
+---
+
+## Recognition
+
+Contributors will be recognized in:
+
+- GitHub contributors list
+- CONTRIBUTORS.md file (if we create one)
+- Release notes for significant contributions
+
+---
+
+## License
+
+By contributing, you agree that your contributions will be licensed under the same license as the project.
+
+---
+
+## Version History
+
+- **v1.0** (2025-11-12): Initial contributing guidelines
+- Future updates will be tracked here
+
+---
+
+## Contact
+
+For questions about contributing:
+
+- Open a GitHub Discussion
+- Create an issue with the `question` label
+- Contact maintainers: [list maintainer contact methods if applicable]
+
+---
+
+Thank you for contributing to making password obfuscation more secure and accessible! 🔒
