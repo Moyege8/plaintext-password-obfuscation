@@ -620,7 +620,7 @@ sleep 15
 Contributors will be recognized in:
 
 - GitHub contributors list
-- CONTRIBUTORS.md file (if we create one)
+- CONTRIBUTORS.md file
 - Release notes for significant contributions
 
 ---
@@ -644,7 +644,7 @@ For questions about contributing:
 
 - Open a GitHub Discussion
 - Create an issue with the `question` label
-- Contact maintainers: [list maintainer contact methods if applicable]
+- Contact maintainers: [oluvictr@outlook.com]
 
 ---
 
