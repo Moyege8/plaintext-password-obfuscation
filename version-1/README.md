@@ -10,10 +10,13 @@
 - To update the the config.yaml with ldap
 - To roll back Password obfuscation
 - Miscellaneous
+- Security Considerations
+- Troubleshooting
+- Check logs
 
 Although this procedure was developed for Bindplane, it is applicable for all plaintext password obfuscations.
 
-Password obfuscation is a 3-part process, namely:
+Password obfuscation version is a 3-part process, namely:
 
 1. Prepare the ansible files and create the directory structure and encrypt the passwords.
 
@@ -350,3 +353,53 @@ It is therefore important to store the config.yaml in a safe place.
 ## Miscellaneous
 
 Ensure the directory structure and the file content of the directories below, with the exception of bindplane_secrets.yml and ansible_vault.cred are checked into Github.
+
+## Security Considerations
+
+1. **Backup Security**: Always store backups of `config.yaml` in a secure location (CyberArk, encrypted storage, or secure repository)
+2. **Vault Password**: Store the Ansible Vault password in a secure password manager
+3. **File Permissions**: Ensure proper file permissions on all configuration files (600 or 700)
+4. **Version Control**: Never commit encrypted secrets to public repositories
+5. **Temporary Files**: The script automatically cleans up temporary files containing decrypted passwords
+
+---
+
+## Troubleshooting
+
+### Check Logs
+
+View BindPlane deployment logs:
+
+```bash
+cat /var/log/bindplane-deploy.log
+```
+
+### Verify Service Status
+
+```bash
+systemctl status bindplane
+journalctl -u bindplane -f
+```
+
+### Test Ansible Playbook Manually
+
+```bash
+cd /etc/bindplane/bindplane-config
+ansible-playbook deploy_bindplane.yml --ask-vault-pass
+```
+
+---
+
+## License
+
+MIT License
+
+## Author
+
+**Olu Lawrence**  
+Date: November 12, 2025
+
+## Contributing
+
+https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/contribution%20guidelines
+
