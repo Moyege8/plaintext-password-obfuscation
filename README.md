@@ -1,31 +1,89 @@
-Password Obfuscation Engine
-A secure methodology for eliminating plaintext credentials in configuration files, specifically optimized for BindPlane (OpenTelemetry) environments on RHEL 9.
-🛡️ Overview
-Hardcoded passwords in config.yaml files represent a significant security risk. This project provides a robust framework to obfuscate these credentials using Ansible Vault and Linux Systemd, ensuring that sensitive data remains encrypted at rest and protected during runtime.
-While designed for BindPlane, this logic is platform-agnostic and can be adapted for any service requiring secure configuration management.
-🚀 Implementation Strategies
-This repository offers two architectural approaches based on your organization's security and automation requirements.
-Option 1: Manual Vault Decryption
-Mechanism: Uses Ansible Vault integrated with systemd service units.
-Workflow: Requires manual entry of the Vault password upon executing systemctl start bindplane.
-Best Use Case: High-security environments where human intervention is required for every service restart to prevent unauthorized automated startups.
-Option 2: Automated Runtime Decryption (Recommended)
-Mechanism: Leverages Systemd’s LoadCredentialEncrypted and Ansible Vault.
-Workflow:
-The Ansible Vault decryption key is stored on the host in an encrypted state.
-At service startup, systemd decrypts the key in memory.
-A startup script generates the config.yaml using the decrypted secrets.
-Volatile Storage: The configuration is held in system memory; the file is immediately purged from the physical filesystem to prevent "data at rest" exposure.
-Best Use Case: Enterprise environments requiring automated patch management and high availability without manual intervention at odd hours.
-🛠️ Technical Stack
-Operating System: Red Hat Enterprise Linux (RHEL) 9
-Security: Ansible Vault
-Service Manager: Systemd (specifically LoadCredentialEncrypted)
-Target Application: BindPlane / OpenTelemetry Collector
-📁 Repository Structure
-/version-1: Implementation guide for Manual Decryption.
-/version-2: Implementation guide for Automated Runtime Decryption.
-🤝 Contributing
-Contributions to enhance the security logic or port these scripts to other distributions are welcome. Please open an issue or submit a pull request.
-📜 License
-Distributed under the MIT License.
+```markdown
+# Plaintext Password Obfuscation
+
+## Overview
+A comprehensive solution for obfuscating plaintext passwords in configuration files, with particular application to Bindplane and OpenTelemetry deployments.
+
+## Background
+
+This solution addresses a critical security challenge encountered during Bindplane onboarding: securing plaintext passwords stored in the `config.yaml` configuration file. While developed specifically for Bindplane (an enterprise distribution of OpenTelemetry), the methodology is platform-agnostic and can be adapted for password obfuscation across various systems.
+
+## Implementation Versions
+
+Two distinct versions have been developed and tested on Red Hat Enterprise Linux 9, each offering different trade-offs between security and operational convenience.
+
+### Version 1: Interactive Vault Authentication
+
+**Repository:** [Version 1](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/version-1)
+
+This implementation leverages Ansible Vault and Linux systemd to provide interactive password protection.
+
+**Key Characteristics:**
+- Prompts for vault key on each `systemctl start bindplane` execution
+- Provides maximum security through manual authentication
+- Requires operator presence during service restarts, including automated maintenance windows (e.g., midnight patching cycles)
+
+**Best suited for:** Organizations prioritizing security controls over automation, or environments where service restarts are infrequent and predictable.
+
+### Version 2: Automated Credential Management
+
+**Repository:** [Version 2](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/version-2)
+
+This implementation combines Ansible Vault, Linux systemd, and systemd's `LoadCredentialEncrypted` feature to enable fully automated service startup.
+
+**Key Characteristics:**
+- Stores encrypted Ansible Vault decryption key locally on the host
+- Automatically decrypts vault key at runtime via systemd's `LoadCredentialEncrypted`
+- Generates `config.yaml` in memory during service initialization
+- Immediately removes configuration file from filesystem after loading
+- Ensures plaintext passwords never persist on disk
+
+**Best suited for:** Production environments requiring automated deployments, unattended restarts, and scheduled maintenance operations.
+
+## Security Model
+
+Both versions prevent plaintext password exposure in configuration files. Version 2 additionally ensures that sensitive configuration data exists only transiently in system memory, never persisting to disk where it could be compromised through filesystem access or backup procedures.
+
+## Requirements
+
+- Red Hat Enterprise Linux 9 (tested platform)
+- Ansible Vault
+- systemd
+
+## Usage
+
+### Starting the Bindplane Service
+
+```bash
+systemctl start bindplane
+```
+
+### Checking Service Status
+
+```bash
+systemctl status bindplane
+```
+
+### Stopping the Service
+
+```bash
+systemctl stop bindplane
+```
+
+## File References
+
+- **Configuration File:** `config.yaml` (Bindplane configuration)
+- **Vault Key Storage:** Encrypted credential stored via systemd (Version 2 only)
+
+## Contributing
+
+Contributions and adaptations for additional platforms are welcome. Please submit pull requests with appropriate documentation.
+
+## License
+
+[Specify your license here]
+
+## Support
+
+For issues or questions, please open an issue in the GitHub repository.
+```
