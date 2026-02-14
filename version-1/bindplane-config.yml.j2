@@ -1,1 +1,200 @@
-To be completed.
+# Bindplane Configuration File
+# This is a sample configuration demonstrating multiple data sources and destinations.
+# Notice the {{ }} enclosing the information we want to obfuscate.
+
+# Server Configuration
+server:
+  host: 0.0.0.0
+  port: 3001
+  secretKey: "your-secret-key-here"
+  tlsConfig:
+    cert: /etc/bindplane/certs/server.crt
+    key: /etc/bindplane/certs/server.key
+
+# Database Configuration
+database:
+  type: postgres
+  connection:
+    host: localhost
+    port: 5432
+    database: bindplane
+    username: {{ database_username }}
+    password: "{{ database_password }}"
+    sslMode: require
+
+# Authentication Configuration
+auth:
+  type: ldap
+  ldap:
+    host: ad.company.com
+    port: 636
+    useTLS: true
+    bindDN: "CN=bindplane-service,OU=Service Accounts,DC=company,DC=com"
+    bindPassword: "{{ ldap_bind_password }}"
+    baseDN: "DC=company,DC=com"
+    userFilter: "(&(objectClass=user)(sAMAccountName=%s))"
+    groupFilter: "(&(objectClass=group)(member=%s))"
+    adminGroup: "CN=Bindplane-Admins,OU=Groups,DC=company,DC=com"
+    userGroup: "CN=Bindplane-Users,OU=Groups,DC=company,DC=com"
+
+# Remote URL for configuration storage
+remoteURL: https://config-repo.company.com/bindplane
+
+# Telemetry Configuration
+telemetry:
+  enabled: true
+  metrics:
+    enabled: true
+    port: 9090
+  traces:
+    enabled: true
+    endpoint: http://jaeger-collector:14268/api/traces
+  logs:
+    enabled: true
+    level: info
+    outputPath: /var/log/bindplane/bindplane.log
+
+# Data Sources Configuration
+sources:
+  # Prometheus Source
+  - name: prometheus-metrics
+    type: prometheus
+    config:
+      endpoint: http://prometheus-server:9090
+      scrapeInterval: 30s
+      username: {{ prometheus_username }}
+      password: "{{ prometheus_password }}"
+      tlsConfig:
+        insecureSkipVerify: false
+        certFile: /etc/bindplane/certs/prometheus-client.crt
+        keyFile: /etc/bindplane/certs/prometheus-client.key
+
+  # MySQL Database Metrics
+  - name: mysql-metrics
+    type: mysql
+    config:
+      endpoint: mysql-server:3306
+      username: {{ mysql_username }}
+      password: "{{ mysql_password }}"
+      database: information_schema
+      collectionInterval: 60s
+      metrics:
+        - mysql.connections
+        - mysql.queries
+        - mysql.slow_queries
+
+  # Apache Web Server Logs
+  - name: apache-logs
+    type: apache
+    config:
+      accessLogPath: /var/log/apache2/access.log
+      errorLogPath: /var/log/apache2/error.log
+      hosts:
+        - web01.company.com
+        - web02.company.com
+      username: {{ apache_ssh_username }}
+      password: "{{ apache_ssh_password }}"
+
+  # Kafka Metrics
+  - name: kafka-metrics
+    type: kafka
+    config:
+      brokers:
+        - kafka01.company.com:9092
+        - kafka02.company.com:9092
+        - kafka03.company.com:9092
+      username: {{ kafka_username }}
+      password: "{{ kafka_password }}"
+      saslMechanism: PLAIN
+      securityProtocol: SASL_SSL
+      topics:
+        - application-logs
+        - system-events
+
+  # Redis Metrics
+  - name: redis-metrics
+    type: redis
+    config:
+      endpoint: redis.company.com:6379
+      password: "{{ redis_password }}"
+      database: 0
+      collectionInterval: 30s
+
+# Data Destinations Configuration
+destinations:
+  # Splunk Destination
+  - name: splunk-hec
+    type: splunk_hec
+    config:
+      endpoint: https://splunk.company.com:8088/services/collector
+      token: "{{ splunk_hec_token }}"
+      index: bindplane_metrics
+      source: bindplane
+      sourcetype: _json
+      tlsConfig:
+        insecureSkipVerify: false
+
+  # S3 Destination
+  - name: s3-archive
+    type: s3
+    config:
+      bucket: company-telemetry-archive
+      region: us-east-1
+      accessKeyId: "{{ s3_access_key_id }}"
+      secretAccessKey: "{{ s3_secret_access_key }}"
+      prefix: bindplane/logs/
+      compression: gzip
+
+# Pipeline Configuration
+pipelines:
+  - name: ad-to-splunk
+    sources:
+      - active-directory-logs
+    processors:
+      - type: filter
+        config:
+          include:
+            severity: [error, warning, critical]
+      - type: transform
+        config:
+          addFields:
+            environment: production
+            team: security
+    destinations:
+      - splunk-hec
+
+  - name: metrics-to-elasticsearch
+    sources:
+      - prometheus-metrics
+      - mysql-metrics
+      - redis-metrics
+      - kafka-metrics
+    processors:
+      - type: batch
+        config:
+          timeout: 10s
+          maxSize: 1000
+    destinations:
+      - elasticsearch-output
+
+  - name: logs-archive
+    sources:
+      - apache-logs
+      - active-directory-logs
+      - elasticsearch-logs
+    destinations:
+      - s3-archive
+      - gcs-backup
+
+# Resource Limits
+resources:
+  memoryLimit: 4Gi
+  cpuLimit: 2000m
+  diskLimit: 100Gi
+
+# Retry Configuration
+retry:
+  enabled: true
+  maxRetries: 3
+  retryInterval: 5s
+  backoffMultiplier: 2
