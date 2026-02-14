@@ -17,8 +17,8 @@ database:
     host: localhost
     port: 5432
     database: bindplane
-    username: bindplane_user
-    password: "your-database-password-here"
+    username: {{ database_username }}
+    password: "{{ database_password }}"
     sslMode: require
 
 # Authentication Configuration
@@ -29,7 +29,7 @@ auth:
     port: 636
     useTLS: true
     bindDN: "CN=bindplane-service,OU=Service Accounts,DC=company,DC=com"
-    bindPassword: "your-active-directory-password-here"
+    bindPassword: "{{ ldap_bind_password }}"
     baseDN: "DC=company,DC=com"
     userFilter: "(&(objectClass=user)(sAMAccountName=%s))"
     groupFilter: "(&(objectClass=group)(member=%s))"
@@ -61,38 +61,20 @@ sources:
     config:
       endpoint: http://prometheus-server:9090
       scrapeInterval: 30s
-      username: prometheus_user
-      password: "your-prometheus-password-here"
+      username: {{ prometheus_username }}
+      password: "{{ prometheus_password }}"
       tlsConfig:
         insecureSkipVerify: false
         certFile: /etc/bindplane/certs/prometheus-client.crt
         keyFile: /etc/bindplane/certs/prometheus-client.key
-
-  # Active Directory Logs
-  - name: active-directory-logs
-    type: windows_event_log
-    config:
-      servers:
-        - host: dc01.company.com
-          username: "COMPANY\\log-collector"
-          password: "your-ad-log-collector-password-here"
-        - host: dc02.company.com
-          username: "COMPANY\\log-collector"
-          password: "your-ad-log-collector-password-here"
-      channels:
-        - Security
-        - System
-        - Application
-        - "Directory Service"
-      query: "*[System[(Level=1 or Level=2 or Level=3)]]"
 
   # MySQL Database Metrics
   - name: mysql-metrics
     type: mysql
     config:
       endpoint: mysql-server:3306
-      username: monitoring_user
-      password: "your-mysql-password-here"
+      username: {{ mysql_username }}
+      password: "{{ mysql_password }}"
       database: information_schema
       collectionInterval: 60s
       metrics:
@@ -109,8 +91,8 @@ sources:
       hosts:
         - web01.company.com
         - web02.company.com
-      username: log_collector
-      password: "your-apache-ssh-password-here"
+      username: {{ apache_ssh_username }}
+      password: "{{ apache_ssh_password }}"
 
   # Kafka Metrics
   - name: kafka-metrics
@@ -120,8 +102,8 @@ sources:
         - kafka01.company.com:9092
         - kafka02.company.com:9092
         - kafka03.company.com:9092
-      username: kafka_monitor
-      password: "your-kafka-password-here"
+      username: {{ kafka_username }}
+      password: "{{ kafka_password }}"
       saslMechanism: PLAIN
       securityProtocol: SASL_SSL
       topics:
@@ -133,24 +115,9 @@ sources:
     type: redis
     config:
       endpoint: redis.company.com:6379
-      password: "your-redis-password-here"
+      password: "{{ redis_password }}"
       database: 0
       collectionInterval: 30s
-
-  # Elasticsearch Logs
-  - name: elasticsearch-logs
-    type: elasticsearch
-    config:
-      endpoints:
-        - https://es01.company.com:9200
-        - https://es02.company.com:9200
-      username: elastic_reader
-      password: "your-elasticsearch-password-here"
-      indices:
-        - logs-*
-        - metrics-*
-      tlsConfig:
-        insecureSkipVerify: false
 
 # Data Destinations Configuration
 destinations:
@@ -159,23 +126,12 @@ destinations:
     type: splunk_hec
     config:
       endpoint: https://splunk.company.com:8088/services/collector
-      token: "your-splunk-hec-token-here"
+      token: "{{ splunk_hec_token }}"
       index: bindplane_metrics
       source: bindplane
       sourcetype: _json
       tlsConfig:
         insecureSkipVerify: false
-
-  # Elasticsearch Destination
-  - name: elasticsearch-output
-    type: elasticsearch
-    config:
-      endpoints:
-        - https://es-ingest01.company.com:9200
-      username: elastic_writer
-      password: "your-elasticsearch-output-password-here"
-      index: bindplane-logs-%{+yyyy.MM.dd}
-      pipeline: bindplane-pipeline
 
   # S3 Destination
   - name: s3-archive
@@ -183,19 +139,10 @@ destinations:
     config:
       bucket: company-telemetry-archive
       region: us-east-1
-      accessKeyId: "your-aws-access-key-id"
-      secretAccessKey: "your-aws-secret-access-key"
+      accessKeyId: "{{ s3_access_key_id }}"
+      secretAccessKey: "{{ s3_secret_access_key }}"
       prefix: bindplane/logs/
       compression: gzip
-
-  # Google Cloud Storage
-  - name: gcs-backup
-    type: gcs
-    config:
-      bucket: company-logs-backup
-      projectId: company-project-id
-      credentialsFile: /etc/bindplane/gcp-credentials.json
-      prefix: bindplane/
 
 # Pipeline Configuration
 pipelines:
