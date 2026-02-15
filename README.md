@@ -1,34 +1,107 @@
 # Plaintext Password Obfuscation
 
 ## Overview
-
 A comprehensive solution for obfuscating plaintext passwords in configuration files.
 
-### Genesis
+## Background
 
-The team I had joined had been trying to onboard Bindplane for a while but were faced with the dilemma of how to hide the plaintext passwords in Bindplane's `config.yaml` file. I came up with the method described below. Bindplane is a version of the open source OpenTelemetry.
+This solution addresses a critical security requirement: securing plaintext passwords stored in application configuration files. Originally developed to solve password exposure in Bindplane's `config.yaml` file, this methodology is platform-agnostic and can be adapted for password obfuscation across various systems.
 
-The method described below, although implemented on Bindplane, can be used for password obfuscation on any platform.
+**Note:** Bindplane is an enterprise distribution of the open-source OpenTelemetry project.
 
-### Version Notes
+## Implementation Versions
 
-I have created two versions of the plaintext password obfuscation solution. Both solutions were implemented on Red Hat Linux release 9.
-Version 1 uses ansible vault and Linux Systemd. In this version, you will be prompted to provide the vault key every time you run `systemctl start bindplane`. Some clients may like this option. 
-However, manually supplying the vault key at Bindplane startup implies that, for automated Linux patch installations, you will need to be present at odd hours (midnight) to manually input the vault key at Systemd startup prompt.
+Two distinct versions have been developed and tested on Red Hat Enterprise Linux 9, each offering different approaches.
 
-Version 2 relies on ansible vault, Linux Systemd and Systemd's LoadCredentialEncypted. In this version, the ansible vault secret decryption key is stored on the local host, encrypted. 
-At bindplane startup i.e. when `systemctl start bindplane` is ran, systemd's `LoadCredentialEncrypted` decrypts the ansible vault key at runtime and supplies the vault key to the bindplane-config-manager.sh script that generates bindplane's config.yml file.
+### Version 1: Interactive Vault Authentication
 
-Immediately the config.yml is created and stored in system memory, bindplane-config-manager.sh deletes the config.yaml from the file system.
-This way the config.yml file containing plaintext password is not visible in the file system.
+**Repository:** [Version 1 Folder](https://github.com/Moyege8/plaintext-password-obfuscation/tree/main/version-1) | [Version 1 README](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/version-1/README.md)
 
-Config files that are common to versions 1 and 2 are right here on the [home page](https://github.com/Moyege8/plaintext-password-obfuscation).
-While files that are unique to each version are in their respective folders.
+This implementation leverages Ansible Vault and Linux systemd to provide interactive password protection.
 
-For version 1 see:
-[Version 1 Readme](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/version-1/README.md) for the procedure.
-And [Version 1 folder](https://github.com/Moyege8/plaintext-password-obfuscation/tree/main/version-1) for the config files.
+**Key Characteristics:**
+- Prompts for vault key each time `systemctl start bindplane` is ran
+- Immediately removes configuration file from filesystem after loading
+- Requires operator presence during service restarts, including automated maintenance windows (e.g., midnight patching cycles)
 
-For version 2 see:
-[Version 2 Readme](https://github.com/Moyege8/plaintext-password-obfuscation/tree/main/version-2#readme) for the procedure.
-And [Version 2 folder](https://github.com/Moyege8/plaintext-password-obfuscation/tree/main/version-2) for the config files.
+**Best suited for:** Organizations where service restarts are infrequent and predictable.
+
+### Version 2: Automated Credential Management
+
+**Repository:** [Version 2 Folder](https://github.com/Moyege8/plaintext-password-obfuscation/tree/main/version-2) | [Version 2 README](https://github.com/Moyege8/plaintext-password-obfuscation/tree/main/version-2#readme)
+
+This implementation combines Ansible Vault, Linux systemd, and systemd's `LoadCredentialEncrypted` feature to enable fully automated service startup.
+
+**Key Characteristics:**
+- Stores encrypted Ansible Vault decryption key locally on the host
+- Automatically decrypts vault key at runtime via systemd's `LoadCredentialEncrypted`
+- Generates `config.yaml` in memory during service initialization via `bindplane-config-manager_v2.sh`
+- Immediately removes configuration file from filesystem after loading
+- Ensures plaintext passwords never persist on disk
+
+**Best suited for:** Production environments requiring automated deployments, unattended restarts, and scheduled maintenance operations.
+
+## Security Model
+
+Both versions prevent plaintext password exposure in configuration files. And additionally ensures that sensitive configuration data exists only transiently in system memory, never persisting to disk where it could be compromised through filesystem access or backup procedures.
+
+## Repository Structure
+```
+plaintext-password-obfuscation/
+├── README.md (this file)
+├── common/                    # Shared configuration files
+│   ├── bindplane-config.yml.j2
+│   ├── deploy_bindplane.yml
+│   └── inventory.ini
+│
+├── version-1/                 # Version 1 specific files
+│    ├── README.md
+│    ├── bindplane.service
+│    └── bindplane-config-manager.sh
+│  
+└── version-2/                 # Version 2 specific files
+    ├── README.md
+    ├── bindplane.service
+    └── bindplane-config-manager_v2.sh
+```
+
+**Shared Files:** Configuration files common to both versions are located in the [root directory](https://github.com/Moyege8/plaintext-password-obfuscation).
+
+**Version-Specific Files:** Each version has its own directory containing unique configuration files and detailed implementation instructions.
+
+## Getting Started
+
+1. Review both version READMEs to determine which approach best fits your security requirements and operational constraints
+2. Follow the step-by-step instructions in your chosen version's README
+3. Adapt the configuration templates to your specific environment
+
+## Requirements
+
+- Red Hat Enterprise Linux 9 (tested platform; other Linux distributions may work with modifications)
+- Ansible and Ansible Vault
+- systemd
+- Root or sudo access
+
+## Use Cases
+
+This solution is applicable to any scenario where:
+- Configuration files contain plaintext passwords
+- Automated deployments are required
+- Security policies mandate password obfuscation
+- Applications read configuration from YAML/text files at startup
+
+## Contributing
+
+Contributions and adaptations for additional platforms are welcome. Please submit pull requests with appropriate documentation and testing notes.
+
+## License
+
+[MIT]
+
+## Author
+
+Created by Oludolapo Lawrence
+
+## Support
+
+For issues or questions, please open an issue in the GitHub repository.
