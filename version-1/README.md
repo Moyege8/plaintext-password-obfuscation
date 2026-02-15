@@ -164,7 +164,7 @@ bindplane-config directory and file structure should look like this when ready:
 1. Copy [bindplane-config-manager.sh](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/version-1/bindplane-config-manager.sh) to /usr/local/bin on the host on which you are password obfuscating.
 
 Make sure the permission looks as follows:
--rwxr-x---. 1 root root    3607 Feb 11 11:09 bindplane-config-manager_v2.sh
+-rwxr-x---. 1 root root    3607 Feb 11 11:09 bindplane-config-manager.sh
 
 The workhorse script /usr/local/bin/bindplane-config-manager.sh, when ran, requests the vault_key and uses the key to decrypt the encrypted passwords stored in bindplane_secrets.yml.
 It generates the config.yaml using ansible-playbook deploy_bindplane.yml file which in turn uses the bindplane-config.yml.j2 template
@@ -172,7 +172,7 @@ It cleans up all the temp files used in the process.
 
 2. You can run the script manually to see how it behaves.
 ```bash
-bindplane-config-manager_v2.sh prepare
+bindplane-config-manager.sh prepare
 ```
 
 **Prologue**
@@ -201,7 +201,7 @@ In Part 3, we are going to override bindplane service load path **/usr/lib/syste
 
 -----once the script is in place and running correctly, part 2 is complete-----------------------
 
-## Part 3 - Use Linux systemd startup process to run bindplane-config-manager_v2.sh
+## Part 3 - Use Linux systemd startup process to run bindplane-config-manager.sh
 
 1. Copy [bindplane.service](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/version-1/bindplane.service) file which systemd will call at startup to /etc/systemd/system
 on the Bindplane host on which you are password obfuscating.
