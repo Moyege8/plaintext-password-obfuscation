@@ -93,6 +93,13 @@ Using the sample config.yaml and bindplane-config.yml.j2 mentioned above as an e
 
 
 
+
+
+
+
+
+
+
 The save the file using vi editor's x! or wq!
 
 If you check the content of the bindplane_secrets.yml file, you will see that it is now encrypted and only you know the password for decrypting the secret file.
