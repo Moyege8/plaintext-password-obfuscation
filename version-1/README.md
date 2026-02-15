@@ -141,21 +141,14 @@ vi inventory.ini
 ```
 
 The content should look like this
+<img width="173" height="29" alt="image" src="https://github.com/user-attachments/assets/62340748-cf3c-43be-b251-3ab6cb898b54" />
+
 [local]
 localhost ansible_connection=local
 
 bindplane-config directory and file structure should look like this when ready:
 
 <img width="217" height="130" alt="image" src="https://github.com/user-attachments/assets/6ffe26ae-07ba-4ff8-b92d-b1441c283e47" />
-
-/etc/bindplane
-|—— bindplane-config
-    |—— deploy_bindplane.yml
-    |—— inventory.ini
-    |—— templates
-    |   └—— bindplane-config.yml.j2
-    └—— vars
-        └—— bindplane_secrets.yml
 
 
 ---------------------------------Part 1 is now complete--------------------------
