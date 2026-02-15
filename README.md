@@ -24,7 +24,7 @@ This way the config.yml file containing plaintext password is not visible in the
 
 For version 1 see:
 [Version 1 Readme](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/version-1/README.md) for the procedure.
-and [Version 1 folder](https://github.com/Moyege8/plaintext-password-obfuscation/tree/main/version-1) for the config files.
+And [Version 1 folder](https://github.com/Moyege8/plaintext-password-obfuscation/tree/main/version-1) for the config files.
 
 Version 2 is work in progress.
 https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/version-2
