@@ -1,10 +1,7 @@
-
 - Prerequisites
 - Part 1 - Prepare the ansible files and create the directory structure and encrypt the passwords.
-- Part 2 Use Systemd LoadCredentialEncrypted to encrypt the password decryption key
-- Part 3 - Deploy bindplane-config-manager.sh script that decrypts the passwords at Bindplane startup and creates the
-    ○ Prologue
-- Part 4 - Use Linux systemd startup process to run bindplane-config-manager_v2.sh
+- Part 2 - Deploy bindplane-config-manager.sh script that decrypts the passwords at Bindplane startup and creates the config.yaml file.
+- Part 3 - Use Linux systemd startup process to run bindplane-config-manager.sh
 - If you change the passwords in config.yaml
 - To change the vault password
 - To update the the config.yaml with ldap
@@ -20,11 +17,9 @@ Password obfuscation version is a 3-part process, namely:
 
 1. Prepare the ansible files and create the directory structure and encrypt the passwords.
 
-2. Use Systemd LoadCredentialEncrypted to encrypt the password decryption key
+2. Deploy bindplane-config-manager.sh script that decrypts the passwords at Bindplane startup and creates the config.yaml file.
 
-3. Deploy bindplane-config-manager.sh script that creates Bindplane config.yaml file at startup.
-
-4. Use Linux systemd startup process to run bindplane-config-manager.sh.
+3. Use Linux systemd startup process to run bindplane-config-manager.sh.
 
 Prerequisites
 1. Create a backup copy of the config.yaml in a directory other than /etc/bindplane or preferably in GitHub.
@@ -50,7 +45,7 @@ ansible --version | grep -i jinja
 
 Part 1 - Prepare the ansible files and create the directory structure and encrypt the passwords.
 
-1. Create the directory structure as shown below:
+1. Create the following directory structure as shown below:
 
 ```bash
 cd /etc/bindplane
@@ -62,23 +57,18 @@ chmod -R 750 bindplane-config/vars
 ```
 
 2. Create a jinja2 file from the config.yaml and store it in bindplane-config/templates
+Sample config.yaml file https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/config.yaml
+Copy the config.yaml file to bindplane-config/templates/bindplane-config.yml.j2
 
-See example on Bindplane hosts stcxtqabpopcp51.x.tqa.ca, /etc/bindplane/bindplane-config/templates/bindplane-config.yml.j2
 ```bash
 cd /etc/bindplane    # if you are not currently in /etc/bindplane directory
-
 cp config.yaml bindplane-config/templates/bindplane-config.yml.j2
 ```
 
 3. Using your favorite editor, replace the values you want to obfuscate with placeholder variables.
+Sample jinja2 file here https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/bindplane-config.yml.j2
 
-On the above-mentioned host, you can also run the grep command below to see the values that were obfuscated.
-grep "{{" bindplane-config.yml.j2
-  sessionSecret: "{{bindplane_session_secret}}"
-    bindPassword: "{{bindPassword}}"
-    password: "{{bindplane_postgres_password}}"
-
-4. Verify the bindplane-config.yml.j2 is properly obfuscated by running the grep command again
+4. On the above-mentioned host, you can also run the grep command below to see the values that were obfuscated.
 ```bash
 grep "{{" bindplane-config.yml.j2
 ```
@@ -90,13 +80,26 @@ cd /etc/bindplane/bindplane-config/vars
 ansible-vault create bindplane_secrets.yml
 ```
 
-New Vault password:    #Enter a strong password of your choice. Store this password is a safe place. Cyberark for example.
+New Vault password:    #Enter a strong password of your choice. Store this password in a safe place. Cyberark for example.
 Confirm New Vault password:
 
-The file should look like this when done:
-bindplane_admin_password: "replace this with the actual password"
-bindplane_session_secret: "replace this with the actual value"
-bindplane_postgres_password: "replace this with the actual password"
+Using the sample config.yaml and bindplane-config.yml.j2 mentioned above as an example, the bindplane_secrets.yml file should look something like this when done:
+database_username: "replace this with the actual username"
+database_password: "replace this with the actual password"
+ldap_bind_password: "replace this with the actual password"
+prometheus_username: "replace this with the actual username"
+prometheus_password: "replace this with the actual password"
+mysql_username: "replace this with the actual username"
+mysql_password: "replace this with the actual password"
+apache_ssh_username: "replace this with the actual username"
+apache_ssh_password: "replace this with the actual password"
+kafka_username: "replace this with the actual username"
+kafka_password: "replace this with the actual password"
+redis_password: "replace this with the actual password"
+splunk_hec_token: "replace this with the actual value"
+s3_access_key_id: "replace this with the actual value"
+
+The save the file using vi editor's x! or wq!
 
 If you check the content of the bindplane_secrets.yml file, you will see that it is now encrypted and only you know the password for decrypting the secret file.
 Run the command below to see:
@@ -105,7 +108,7 @@ more bindplane_secrets.yml
 ```
 
 6. Create the ansible deploy file in /etc/bindplane/bindplane-config/deploy_bindplane.yml
-See example #bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb#
+See example [deploy_bindplane.yml](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/deploy_bindplane.yml)
 It should look like this
 ```yaml
 ---
@@ -132,6 +135,7 @@ It should look like this
 ```
 
 7. Create an ansible inventory file in /etc/bindplane/bindplane-config
+See [inventory.ini](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/inventory.ini)
 ```bash
 vi inventory.ini
 ```
@@ -140,9 +144,7 @@ The content should look like this
 [local]
 localhost ansible_connection=local
 
-localhost ansible_connection=local
-
-bindplane-config directory structure should look like this:
+bindplane-config directory and file structure should look like this when ready:
 
 /etc/bindplane
 |—— bindplane-config
@@ -153,46 +155,24 @@ bindplane-config directory structure should look like this:
     └—— vars
         └—— bindplane_secrets.yml
 
----------------------------------Part 1 is now omplete--------------------------
+---------------------------------Part 1 is now complete--------------------------
 
-Part 2 Use Systemd LoadCredentialEncrypted to encrypt the password decryption key
+Part 2 - Deploy bindplane-config-manager.sh script that decrypts the passwords at Bindplane startup and creates the config.yaml file.
 
-1. From any directory of your choice create a file and enter into the file the vault key you created in Part 1, step 5 above. Let's call the file plaintext.txt.
-
-2. Encrypt vault key using systemd-creds as shown below.
-```bash
-systemd-creds encrypt --name=ansible_vault_key plaintext.txt /etc/bindplane/bindplane-config/vaultkey/ansible_vault.cred
-```
-
-The above command will encrypt the vault key stored in plaintext.txt and store the encrypted vault key in /etc/bindplane/bindplane-config/vaultkey/ansible_vault.cred
-3. Shred the plaintext.txt file and verify the file is no longer on the system.
-```bash
-shred -u plaintext.txt
-```
-
----------------------------Part 2 is now complete-----------------------------------
-
-Part 3 - Deploy bindplane-config-manager.sh script that decrypts the passwords at Bindplane startup and creates the config.yaml file.
-
-1. Fetch the bash script bindplane-config-manager_v2.sh from Bindplane host stcxtqabpopcp51.x.tqa.can, /usr/local/bin directory and copy it to /usr/local/bin on the host on which you are password obfuscating
+1. Copy [bindplane-config-manager.sh](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/version-1/bindplane-config-manager.sh) to /usr/local/bin on the host on which you are password obfuscating.
 
 Make sure the permission looks as follows:
 -rwxr-x---. 1 root root    3607 Feb 11 11:09 bindplane-config-manager_v2.sh
 
-The workhorse script /usr/local/bin/bindplane-config-manager_v2.sh, when ran, requests the vault_key and uses the key to decrypt the encrypted passwords stored in bindplane_secrets.yml.
-It generates the config.yaml using ansible-playbook deploy_bindplane.yml file which in turn uses bindplane-config.yml.j2 template
+The workhorse script /usr/local/bin/bindplane-config-manager.sh, when ran, requests the vault_key and uses the key to decrypt the encrypted passwords stored in bindplane_secrets.yml.
+It generates the config.yaml using ansible-playbook deploy_bindplane.yml file which in turn uses the bindplane-config.yml.j2 template
 It cleans up all the temp files used in the process.
 
-2. When you try to run the script manually as shown below, you would see that the script can only be ran by systemd service and not by a human
+2. You can run the script manually to see how it behaves.
 ```bash
 bindplane-config-manager_v2.sh prepare
 ```
 
-[INFO] Preparing BindPlane configuration...
-[ERROR] CREDENTIALS_DIRECTORY not available. Ensure the script is run via a systemd service with LoadCredentialEncrypted configured.
-
-This is the expected error message.
-
 **Prologue**
 
 When you check the status of Bindplane by running the command
@@ -203,7 +183,7 @@ systemctl status bindplane
 You see the following
 ○ bindplane.service - Bindplane is an observability pipeline that gives you the ability to collect, refine, and ship metrics, logs, and traces to any destination.
     Loaded: loaded (/usr/lib/systemd/system/bindplane.service; enabled; preset: disabled)
-    Active: inactive (dead) since Tue 2025-11-11 14:09:39 EST; 10s ago
+    Active: inactive (dead) since Tue 2025-08-12 15:07:35 EST; 10s ago
     Duration: 4d 2min 5.187s
       Docs: https://bindplane.com/docs/getting-started/quickstart-guide
     Process: 2736162 ExecStart=/usr/local/bin/bindplane serve --config /etc/bindplane/config.yaml (code=exited, status=0/SUCCESS)
@@ -215,51 +195,18 @@ Run the command below to see the content of the bindplane.service file.
 more /usr/lib/systemd/system/bindplane.service
 ```
 
-In Part 4, we are going to override bindplane service load path **/usr/lib/systemd/system/bindplane.service.**
+In Part 3, we are going to override bindplane service load path **/usr/lib/systemd/system/bindplane.service.**
 
------once the script is in place and running correctly, part 3 is complete-----------------------
-
-[INFO] Preparing BindPlane configuration...
-[ERROR] CREDENTIALS_DIRECTORY not available. Ensure the script is run via a systemd service with LoadCredentialEncrypted configured.
-
-This is the expected error message.
-
-**Prologue**
-
-When you check the status of Bindplane by running the command
-```bash
-systemctl status bindplane
-```
-
-You see the following
-○ bindplane.service - Bindplane is an observability pipeline that gives you the ability to collect, refine, and ship metrics, logs, and traces to any destination.
-    Loaded: loaded (/usr/lib/systemd/system/bindplane.service; enabled; preset: disabled)
-    Active: inactive (dead) since Tue 2025-11-11 14:09:39 EST; 10s ago
-    Duration: 4d 2min 5.187s
-      Docs: https://bindplane.com/docs/getting-started/quickstart-guide
-    Process: 2736162 ExecStart=/usr/local/bin/bindplane serve --config /etc/bindplane/config.yaml (code=exited, status=0/SUCCESS)
-  Main PID: 2736162 (code=exited, status=0/SUCCESS)
-      CPU: 2h 1min 17.745s
-
-Run the command below to see the content of the bindplane.service file.
-```bash
-more /usr/lib/systemd/system/bindplane.service
-```
-
-In Part 4, we are going to override bindplane service load path **/usr/lib/systemd/system/bindplane.service.**
-
------once the script is in place and running correctly, part 3 is complete-----------------------------
+-----once the script is in place and running correctly, part 2 is complete-----------------------
 
 Part 4 - Use Linux systemd startup process to run bindplane-config-manager_v2.sh
 
-1. Fetch the updated bindplane.service file which systemd will call at startup from stcxtqabpopcp51.x.tqa.can, /etc/systemd/system
-and copy it to /etc/systemd/system on the Bindplane host on which you are password obfuscating.
-
-The bindplane.service file looks like this.
+1. Copy [bindplane.service](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/version-1/bindplane.service) file which systemd will call at startup to /etc/systemd/system
+on the Bindplane host on which you are password obfuscating.
 
 Ensure the permission and ownership looks like this:
 
--rw-r----. 1 root    root    1479 Dec 16 10:16 bindplane.service
+-rw-r----. 1 root    root    1479 Aug 12 15:02 bindplane.service
 
 Check the content of the file to see how it is different from the one in /usr/lib/systemd/system/bindplane.service
 When you run systemctl it will now override /usr/lib/systemd/system/bindplane.service and take instructions from /etc/systemd/system/bindplane.service
@@ -290,6 +237,7 @@ You would also see that the bindplane's config.yaml is no longer visible in /etc
 
 -----------Bindplane password obfuscation process is now complete---------------------
 
+## Miscellaneous
 If you change the passwords in config.yaml
 
 do
@@ -348,10 +296,7 @@ systemctl enable bindplane
 
 Bindplane will now revert back to taking startup instructions from /usr/lib/systemd/system/bindplane.service and the passwords in config.yaml would revert back to plaintext, which is not the desirable outcome.
 
-It is therefore important to store the config.yaml in a safe place.
-
-## Miscellaneous
-
+It is therefore important to store the config.yaml in a safe place and without the plaintext secrets. The plaintext secrets should be stored securely in your secrets managers of choice.
 Ensure the directory structure and the file content of the directories below, with the exception of bindplane_secrets.yml and ansible_vault.cred are checked into Github.
 
 ## Security Considerations
