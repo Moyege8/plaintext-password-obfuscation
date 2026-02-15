@@ -1,0 +1,55 @@
+#### Bindplane systemd service
+# Author: Olu Lawrence
+# Date: Nov 12, 2025
+# Revision date: Dec 15, 2025
+[Unit]
+Description=BindPlane Server with Encrypted Configuration
+Documentation=https://docs.bindplane.com
+ConditionPathExists=/etc/bindplane/bindplane-config/vaultkey/ansible_vault.cred
+After=network.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+LoadCredentialEncrypted=ansible_vault_key:/etc/bindplane/bindplane-config/vaultkey/ansible_vault.cred
+
+# Step 1: Deploy decrypted config before starting
+ExecStartPre=/usr/local/bin/bindplane-config-manager_v2.sh prepare
+
+# Step 2: Start BindPlane
+ExecStart=/usr/local/bin/bindplane serve --config /etc/bindplane/config.yaml
+
+# Step 3: Wait for startup, then delete config file (security measure)
+# Run as separate process so it doesn't block service
+ExecStartPost=/bin/bash -c 'sleep 15 && /usr/local/bin/bindplane-config-manager_v2.sh cleanup &'
+
+# Cleanup config on stop
+ExecStopPost=/usr/local/bin/bindplane-config-manager_v2.sh cleanup
+
+# Restart configuration
+#Restart=on-failure
+#RestartSec=10s
+#StartLimitInterval=5min
+#StartLimitBurst=3
+
+# Environment
+Environment="BINDPLANE_CONFIG_PATH=/etc/bindplane"
+WorkingDirectory=/var/lib/bindplane
+
+# Security settings
+#NoNewPrivileges=true
+#PrivateTmp=true
+#ProtectSystem=strict
+#ProtectHome=true
+#ReadWritePaths=/var/lib/bindplane /var/log/bindplane
+
+#ReadWritePaths=/var/lib/bindplane /var/log/bindplane
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=bindplane
+
+[Install]
+WantedBy=multi-user.target
