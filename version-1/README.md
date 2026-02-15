@@ -60,7 +60,7 @@ chmod -R 750 bindplane-config/vars
 ```
 
 2. Create a jinja2 file from the config.yaml and store it in bindplane-config/templates
-Sample [config.yaml](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/config.yaml) file 
+Sample [config.yaml](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/common/config.yaml) file 
 Copy the config.yaml file to bindplane-config/templates/bindplane-config.yml.j2
 
 ```bash
