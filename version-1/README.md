@@ -164,7 +164,7 @@ bindplane-config directory and file structure should look like this when ready:
 1. Copy [bindplane-config-manager.sh](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/version-1/bindplane-config-manager.sh) to /usr/local/bin on the host on which you are password obfuscating.
 
 Make sure the permission looks as follows:
--rwxr-x---. 1 root root    3607 Feb 11 11:09 bindplane-config-manager.sh
+-rwxr-x---. 1 root root    3607 Nov 12 11:09 bindplane-config-manager.sh
 
 The workhorse script /usr/local/bin/bindplane-config-manager.sh, when ran, requests the vault_key and uses the key to decrypt the encrypted passwords stored in bindplane_secrets.yml.
 It generates the config.yaml using ansible-playbook deploy_bindplane.yml file which in turn uses the bindplane-config.yml.j2 template
@@ -185,7 +185,7 @@ systemctl status bindplane
 You see the following
 ○ bindplane.service - Bindplane is an observability pipeline that gives you the ability to collect, refine, and ship metrics, logs, and traces to any destination.
     Loaded: loaded (/usr/lib/systemd/system/bindplane.service; enabled; preset: disabled)
-    Active: inactive (dead) since Tue 2025-08-12 15:07:35 EST; 10s ago
+    Active: inactive (dead) since Tue 2025-12-11 15:07:35 EST; 10s ago
     Duration: 4d 2min 5.187s
       Docs: https://bindplane.com/docs/getting-started/quickstart-guide
     Process: 2736162 ExecStart=/usr/local/bin/bindplane serve --config /etc/bindplane/config.yaml (code=exited, status=0/SUCCESS)
@@ -208,7 +208,7 @@ on the Bindplane host on which you are password obfuscating.
 
 Ensure the permission and ownership looks like this:
 
--rw-r----. 1 root    root    1479 Aug 12 15:02 bindplane.service
+-rw-r----. 1 root    root    1479 Nov 12 15:02 bindplane.service
 
 Check the content of the file to see how it is different from the one in /usr/lib/systemd/system/bindplane.service
 When you run systemctl it will now override /usr/lib/systemd/system/bindplane.service and take instructions from /etc/systemd/system/bindplane.service
@@ -229,7 +229,7 @@ systemctl status bindplane
 You would see that Bindplane is now using /etc/systemd/system/bindplane.service
 ● bindplane.service - BindPlane Server with Encrypted Configuration
     Loaded: loaded (/etc/systemd/system/bindplane.service; enabled; preset: disabled)
-    Active: active (running) since Tue 2025-11-11 14:39:30 EST; 5s ago
+    Active: active (running) since Wed 2025-12-11 14:39:30 EST; 5s ago
       Docs: https://docs.bindplane.com
     Process: 3240468 ExecStartPre=/usr/local/bin/bindplane-config-manager.sh prepare (code=exited, status=0/SUCCESS)
     Process: 3240647 ExecStartPost=/bin/bash -c sleep 15 && /usr/local/bin/bindplane-config-manager.sh cleanup & (code=exited, status=0/SUCCESS)
