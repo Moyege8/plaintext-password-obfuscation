@@ -87,20 +87,11 @@ New Vault password:    #Enter a strong password of your choice. Store this passw
 Confirm New Vault password:
 
 Using the sample config.yaml and bindplane-config.yml.j2 mentioned above as an example, the bindplane_secrets.yml file should look something like this when done:
-database_username: "replace this with the actual username"
-database_password: "replace this with the actual password"
-ldap_bind_password: "replace this with the actual password"
-prometheus_username: "replace this with the actual username"
-prometheus_password: "replace this with the actual password"
-mysql_username: "replace this with the actual username"
-mysql_password: "replace this with the actual password"
-apache_ssh_username: "replace this with the actual username"
-apache_ssh_password: "replace this with the actual password"
-kafka_username: "replace this with the actual username"
-kafka_password: "replace this with the actual password"
-redis_password: "replace this with the actual password"
-splunk_hec_token: "replace this with the actual value"
-s3_access_key_id: "replace this with the actual value"
+<img width="639" height="278" alt="image" src="https://github.com/user-attachments/assets/78dbbc8a-8b22-4f96-93f8-b67305686802" />
+
+
+
+
 
 The save the file using vi editor's x! or wq!
 
