@@ -16,7 +16,7 @@
 
 Although this procedure was developed for Bindplane, it is applicable for all plaintext password obfuscations.
 
-Password obfuscation version is a 3-part process, namely:
+Password obfuscation version-1 is a 3-part process, namely:
 
 1. Prepare the ansible files and create the directory structure and encrypt the passwords.
 
