@@ -87,8 +87,9 @@ New Vault password:    #Enter a strong password of your choice. Store this passw
 Confirm New Vault password:
 
 Using the sample config.yaml and bindplane-config.yml.j2 mentioned above as an example, the bindplane_secrets.yml file should look something like this when done:
+<img width="623" height="282" alt="image" src="https://github.com/user-attachments/assets/a24f766a-23ff-430e-934f-9a0b8044e7e7" />
 
-<img width="639" height="278" alt="image" src="https://github.com/user-attachments/assets/78dbbc8a-8b22-4f96-93f8-b67305686802" />
+
 
 
 
