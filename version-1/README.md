@@ -135,13 +135,10 @@ It should look like this
 ```
 
 7. Create an ansible inventory file in /etc/bindplane/bindplane-config
-See [inventory.ini](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/inventory.ini)
 ```bash
 vi inventory.ini
 ```
-
-The content should look like this
-<img width="173" height="29" alt="image" src="https://github.com/user-attachments/assets/62340748-cf3c-43be-b251-3ab6cb898b54" />
+The file should look like this when ready [inventory.ini](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/inventory.ini)
 
 bindplane-config directory and file structure should look like this when ready:
 <img width="217" height="130" alt="image" src="https://github.com/user-attachments/assets/6ffe26ae-07ba-4ff8-b92d-b1441c283e47" />
