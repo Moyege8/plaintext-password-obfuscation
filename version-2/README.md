@@ -207,7 +207,7 @@ systemctl status bindplane
 You see the following
 ○ bindplane.service - Bindplane is an observability pipeline that gives you the ability to collect, refine, and ship metrics, logs, and traces to any destination.
     Loaded: loaded (/usr/lib/systemd/system/bindplane.service; enabled; preset: disabled)
-    Active: inactive (dead) since Tue 2025-08-12 15:07:35 EST; 10s ago
+    Active: inactive (dead) since Mon 2025-15-12 15:07:35 EST; 10s ago
     Duration: 4d 2min 5.187s
       Docs: https://bindplane.com/docs/getting-started/quickstart-guide
     Process: 2736162 ExecStart=/usr/local/bin/bindplane serve --config /etc/bindplane/config.yaml (code=exited, status=0/SUCCESS)
@@ -231,7 +231,7 @@ on the Bindplane host on which you are password obfuscating.
 
 Ensure the permission and ownership looks like this:
 
--rw-r----. 1 root    root    1479 Aug 12 15:02 bindplane.service
+-rw-r----. 1 root    root    1479 Mon 15 15:02 bindplane.service
 
 Check the content of the file to see how it is different from the one in /usr/lib/systemd/system/bindplane.service
 When you run systemctl it will now override /usr/lib/systemd/system/bindplane.service and take instructions from /etc/systemd/system/bindplane.service
@@ -252,7 +252,7 @@ systemctl status bindplane
 You would see that Bindplane is now using /etc/systemd/system/bindplane.service
 ● bindplane.service - BindPlane Server with Encrypted Configuration
     Loaded: loaded (/etc/systemd/system/bindplane.service; enabled; preset: disabled)
-    Active: active (running) since Tue 2025-11-11 14:39:30 EST; 5s ago
+    Active: active (running) since Mon 2025-15-12 14:39:30 EST; 5s ago
       Docs: https://docs.bindplane.com
     Process: 3240468 ExecStartPre=/usr/local/bin/bindplane-config-manager.sh prepare (code=exited, status=0/SUCCESS)
     Process: 3240647 ExecStartPost=/bin/bash -c sleep 15 && /usr/local/bin/bindplane-config-manager.sh cleanup & (code=exited, status=0/SUCCESS)
@@ -357,7 +357,7 @@ MIT License
 ## Author
 
 **Olu Lawrence**  
-Date: November 12, 2025
+Date: Dec 15, 2025
 
 ## Contributing
 [Contributing Guidelines](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/contribution%20guidelines)
