@@ -28,5 +28,6 @@ For version 1 see:
 [Version 1 Readme](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/version-1/README.md) for the procedure.
 And [Version 1 folder](https://github.com/Moyege8/plaintext-password-obfuscation/tree/main/version-1) for the config files.
 
-Version 2 is work in progress.
-https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/version-2
+For version 2 see:
+[Version 2 Readme](https://github.com/Moyege8/plaintext-password-obfuscation/tree/main/version-2#readme) for the procedure.
+And [Version 2 folder](https://github.com/Moyege8/plaintext-password-obfuscation/tree/main/version-2) for the config files.
