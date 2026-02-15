@@ -24,6 +24,7 @@ This way the config.yml file containing plaintext password is not visible in the
 
 Config files that are common to versions 1 and 2 are right here on the [home page](https://github.com/Moyege8/plaintext-password-obfuscation).
 While files that are unique to each version are in their respective folders.
+
 For version 1 see:
 [Version 1 Readme](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/version-1/README.md) for the procedure.
 And [Version 1 folder](https://github.com/Moyege8/plaintext-password-obfuscation/tree/main/version-1) for the config files.
