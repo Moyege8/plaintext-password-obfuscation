@@ -3,7 +3,7 @@
 * [Prerequisites](#prerequisites)
 * [Part 1 - Prepare the ansible files and create the directory structure and encrypt the passwords](#part-1---prepare-the-ansible-files-and-create-the-directory-structure-and-encrypt-the-passwords)
 * [Part 2 - Use Systemd LoadCredentialEncrypted to encrypt the vault key (vault password)](#part-2---use-systemd-loadcredentialencrypted-to-encrypt-the-vault-key-vault-password)
-* [Part 3 - Deploy bindplane-config-manager.sh script that decrypts the passwords at Bindplane startup and creates the config.yaml file](#part-2---deploy-bindplane-config-managersh-script-that-decrypts-the-passwords-at-bindplane-startup-and-creates-the-configyaml-file)
+* [Part 3 - Deploy bindplane-config-manager.sh script that decrypts the passwords at Bindplane startup and creates the config.yaml file](#part-3---deploy-bindplane-config-managersh-script-that-decrypts-the-passwords-at-bindplane-startup-and-creates-the-configyaml-file)
 * [Part 4 - Use Linux systemd startup process to run bindplane-config-manager_v2.sh](#part-4---use-linux-systemd-startup-process-to-run-bindplane-config-manager_v2.sh)
 * [If you change the passwords in config.yaml](#if-you-change-the-passwords-in-configyaml)
 * [To change the vault password](#to-change-the-vault-password)
@@ -177,7 +177,7 @@ shred -u plaintext.txt
 ```
 ---------------- Part 2 is now complete---------------------------
 
-## Part 3 - Deploy bindplane-config-manager.sh script that decrypts the passwords at Bindplane startup and creates the config.yaml file.
+## Part 3 - Deploy bindplane-config-manager.sh script that decrypts the passwords at Bindplane startup and creates the config.yaml file
 
 1. Copy [bindplane-config-manager_v2.sh](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/version-2/bindplane-config-manager_v2.sh) to /usr/local/bin on the host on which you are password obfuscating.
 
