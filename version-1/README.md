@@ -146,6 +146,8 @@ bindplane-config directory and file structure should look like this when ready:
 <img width="380" height="161" alt="image" src="https://github.com/user-attachments/assets/b92ec2e7-b898-4342-9e0b-0b138723e2fb" />
 
 
+
+
 ---------------------------------Part 1 is now complete--------------------------
 
 Part 2 - Deploy bindplane-config-manager.sh script that decrypts the passwords at Bindplane startup and creates the config.yaml file.
