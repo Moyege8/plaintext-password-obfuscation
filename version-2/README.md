@@ -63,7 +63,7 @@ chmod -R 750 bindplane-config/vars
 ```
 
 2. Create a jinja2 file from the config.yaml and store it in bindplane-config/templates
-Sample [config.yaml](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/config.yaml) file 
+Sample [config.yaml](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/common/config.yaml) file 
 Copy the config.yaml file to bindplane-config/templates/bindplane-config.yml.j2
 
 ```bash
@@ -72,7 +72,7 @@ cp config.yaml bindplane-config/templates/bindplane-config.yml.j2
 ```
 
 3. Using your favorite editor, replace the values you want to obfuscate with placeholder variables.
-Sample [bindplane-config.yml.j2](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/bindplane-config.yml.j2)
+Sample [bindplane-config.yml.j2](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/common/bindplane-config.yml.j2)
 
 4. On the above-mentioned host, you can also run the grep command below to see the values that were obfuscated.
 ```bash
@@ -120,7 +120,7 @@ more bindplane_secrets.yml
 ```
 
 6. Create the ansible deploy file in /etc/bindplane/bindplane-config/deploy_bindplane.yml
-See example [deploy_bindplane.yml](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/deploy_bindplane.yml)
+See example [deploy_bindplane.yml](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/common/deploy_bindplane.yml)
 It should look like this
 ```yaml
 ---
@@ -150,7 +150,7 @@ It should look like this
 ```bash
 vi inventory.ini
 ```
-The file should look like this when ready [inventory.ini](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/inventory.ini)
+The file should look like this when ready [inventory.ini](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/common/inventory.ini)
 
 bindplane-config directory and file structure should look like this when ready:
 
