@@ -1,15 +1,18 @@
-- Prerequisites
-- Part 1 - Prepare the ansible files and create the directory structure and encrypt the passwords.
-- Part 2 - Deploy bindplane-config-manager.sh script that decrypts the passwords at Bindplane startup and creates the config.yaml file.
-- Part 3 - Use Linux systemd startup process to run bindplane-config-manager.sh
-- If you change the passwords in config.yaml
-- To change the vault password
-- To update the the config.yaml with ldap
-- To roll back Password obfuscation
-- Miscellaneous
-- Security Considerations
-- Troubleshooting
-- Check logs
+## Table of Contents
+
+* [Prerequisites](#prerequisites)
+* [Part 1 - Prepare the ansible files and create the directory structure and encrypt the passwords](#part-1---prepare-the-ansible-files-and-create-the-directory-structure-and-encrypt-the-passwords)
+* [Part 2 - Deploy bindplane-config-manager.sh script that decrypts the passwords at Bindplane startup and creates the config.yaml file](#part-2---deploy-bindplane-config-managersh-script-that-decrypts-the-passwords-at-bindplane-startup-and-creates-the-configyaml-file)
+* [Part 3 - Use Linux systemd startup process to run bindplane-config-manager.sh](#part-3---use-linux-systemd-startup-process-to-run-bindplane-config-managersh)
+* [If you change the passwords in config.yaml](#if-you-change-the-passwords-in-configyaml)
+* [To change the vault password](#to-change-the-vault-password)
+* [To update the config.yaml with ldap](#to-update-the-configyaml-with-ldap)
+* [To roll back Password obfuscation](#to-roll-back-password-obfuscation)
+* [Security Considerations](#security-considerations)
+* [Troubleshooting](#troubleshooting)
+* [Check logs](#check-logs)
+
+## Overview
 
 Although this procedure was developed for Bindplane, it is applicable for all plaintext password obfuscations.
 
@@ -21,7 +24,7 @@ Password obfuscation version is a 3-part process, namely:
 
 3. Use Linux systemd startup process to run bindplane-config-manager.sh.
 
-Prerequisites
+## Prerequisites
 1. Create a backup copy of the config.yaml in a directory other than /etc/bindplane or preferably in GitHub.
 
 2. Ensure ansible is installed.
@@ -43,7 +46,7 @@ sudo dnf install ansible-core
 ansible --version | grep -i jinja
 ```
 
-Part 1 - Prepare the ansible files and create the directory structure and encrypt the passwords.
+## Part 1 - Prepare the ansible files and create the directory structure and encrypt the passwords.
 
 1. Create the following directory structure as shown below:
 
@@ -150,7 +153,7 @@ bindplane-config directory and file structure should look like this when ready:
 
 ---------------------------------Part 1 is now complete--------------------------
 
-Part 2 - Deploy bindplane-config-manager.sh script that decrypts the passwords at Bindplane startup and creates the config.yaml file.
+## Part 2 - Deploy bindplane-config-manager.sh script that decrypts the passwords at Bindplane startup and creates the config.yaml file.
 
 1. Copy [bindplane-config-manager.sh](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/version-1/bindplane-config-manager.sh) to /usr/local/bin on the host on which you are password obfuscating.
 
@@ -192,7 +195,7 @@ In Part 3, we are going to override bindplane service load path **/usr/lib/syste
 
 -----once the script is in place and running correctly, part 2 is complete-----------------------
 
-Part 4 - Use Linux systemd startup process to run bindplane-config-manager_v2.sh
+## Part 3 - Use Linux systemd startup process to run bindplane-config-manager_v2.sh
 
 1. Copy [bindplane.service](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/version-1/bindplane.service) file which systemd will call at startup to /etc/systemd/system
 on the Bindplane host on which you are password obfuscating.
@@ -230,8 +233,7 @@ You would also see that the bindplane's config.yaml is no longer visible in /etc
 
 -----------Bindplane password obfuscation process is now complete---------------------
 
-## Miscellaneous
-If you change the passwords in config.yaml
+## If you change the passwords in config.yaml
 
 do
 
@@ -254,15 +256,6 @@ You would be prompted for the current password and prompted to provide a new pas
 
 ## To update the the config.yaml with ldap
 
-Update the /etc/bindplane/bindplane-config/templates/bindplane-config.yml.j2 file with ldap password placeholder
-e.g. password: "{{bindplane_ldap_password}}"
-
-Update the bindplane_secrets.yml file by using the edit command described earlier
-```bash
-ansible-vault edit bindplane_secrets.yml
-```
-
-## To roll back Password obfuscation
 Update the /etc/bindplane/bindplane-config/templates/bindplane-config.yml.j2 file with ldap password placeholder
 e.g. password: "{{bindplane_ldap_password}}"
 
@@ -319,11 +312,11 @@ systemctl status bindplane
 journalctl -u bindplane -f
 ```
 
-### Test Ansible Playbook Manually
+### Test bindplane-config-manager.sh script Manually
 
 ```bash
-cd /etc/bindplane/bindplane-config
-ansible-playbook deploy_bindplane.yml --ask-vault-pass
+bindplane-config-manager.sh prepare
+bindplane-config-manager.sh cleanup
 ```
 
 ---
