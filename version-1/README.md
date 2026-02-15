@@ -1,6 +1,6 @@
 ## Table of Contents
 
-[Prerequisites](#prerequisites)
+* [Prerequisites](#prerequisites)
 * [Part 1 - Prepare the ansible files and create the directory structure and encrypt the passwords](#part-1---prepare-the-ansible-files-and-create-the-directory-structure-and-encrypt-the-passwords)
 * [Part 2 - Deploy bindplane-config-manager.sh script that decrypts the passwords at Bindplane startup and creates the config.yaml file](#part-2---deploy-bindplane-config-managersh-script-that-decrypts-the-passwords-at-bindplane-startup-and-creates-the-configyaml-file)
 * [Part 3 - Use Linux systemd startup process to run bindplane-config-manager.sh](#part-3---use-linux-systemd-startup-process-to-run-bindplane-config-managersh)
