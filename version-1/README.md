@@ -318,7 +318,7 @@ systemctl status bindplane
 journalctl -u bindplane -f
 ```
 
-### Test bindplane-config-manager.sh script Manually
+### Test bindplane-config-manager.sh script manually
 
 ```bash
 bindplane-config-manager.sh prepare
