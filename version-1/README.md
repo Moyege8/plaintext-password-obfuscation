@@ -141,6 +141,8 @@ vi inventory.ini
 The file should look like this when ready [inventory.ini](https://github.com/Moyege8/plaintext-password-obfuscation/blob/main/inventory.ini)
 
 bindplane-config directory and file structure should look like this when ready:
+
+
 <img width="380" height="161" alt="image" src="https://github.com/user-attachments/assets/b92ec2e7-b898-4342-9e0b-0b138723e2fb" />
 
 
