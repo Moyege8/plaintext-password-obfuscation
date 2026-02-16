@@ -1,5 +1,6 @@
 ## Table of Contents
 
+* [Overview](#overview)
 * [Prerequisites](#prerequisites)
 * [Part 1 - Prepare the ansible files and create the directory structure and encrypt the passwords](#part-1---prepare-the-ansible-files-and-create-the-directory-structure-and-encrypt-the-passwords)
 * [Part 2 - Use Systemd LoadCredentialEncrypted to encrypt the vault key (vault password)](#part-2---use-systemd-loadcredentialencrypted-to-encrypt-the-vault-key-vault-password)
